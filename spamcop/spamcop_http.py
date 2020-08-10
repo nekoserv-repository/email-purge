@@ -26,7 +26,7 @@ def send_to_spamcop(smtp_server, mail_content, subject):
     post_params['spam'] = mail_content
     # don't verbose
     #post_params['verbose'] = '0'
-    
+
     # send the spam!
     print("  ~ sending spam")
     post_url = cfg['SPAM_URL'] + action
@@ -78,7 +78,7 @@ def send_post(session, url, post_params):
 
     # create session, connect to website
     res = session.post(url, headers = headers, data = post_params)
-    
+
     # if error
     if not res.ok:
         raise Exception('not connected!', res)
