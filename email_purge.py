@@ -7,41 +7,60 @@
 
 import imaplib
 from time import sleep
+import signal
 from mailing import mailing
 from config.config import cfg
 from config.config import check_runtime_cfg
 from spamcop import spamcop_http
 
 
+class Email_Purge:
+    mailbox = None
+
+    def __init__(self):
+        signal.signal(signal.SIGINT, lambda signal, frame: self._signal_handler())
+        signal.signal(signal.SIGTERM, lambda signal, frame: self._signal_handler())
+        self.terminated = False
+
+    def _signal_handler(self):
+        if self.mailbox != None and self.mailbox.socket().fileno() != -1:
+            self.mailbox.close()
+            self.mailbox.logout()
+        print('! caugth exit signal - farewell')
+        exit(0)
+
+    def mail_loop(self):
+        while True:
+            try:
+                ## connect to IMAP with SSL
+                self.mailbox = imaplib.IMAP4_SSL(cfg['EMAIL_SVC_IMAP'])
+                rv, data = self.mailbox.login(cfg['EMAIL_ACCOUNT'], cfg['EMAIL_PASSWD'])
+            except imaplib.IMAP4.error:
+                print("LOGIN FAILED!!! ", data)
+                exit(1)
+
+            ## change folder
+            rv, data = self.mailbox.select(cfg['EMAIL_FOLDER'])
+            if rv == 'OK':
+                print("> Opening mailbox...")
+                ## do some stuff
+                mailing.process_mailbox(self.mailbox)
+                print("> Done.")
+            else:
+                print("ERROR: Unable to open mailbox ", rv)
+
+            ## exit mailbox
+            self.mailbox.close()
+            self.mailbox.logout()
+
+            ## sleep for 10 mins
+            print("~ waiting 10 mins")
+            sleep(600)
+
+
 ## check runtime configuration
 check_runtime_cfg()
 
-while True:
-    ## connect to IMAP with SSL
-    M = imaplib.IMAP4_SSL(cfg['EMAIL_SVC_IMAP'])
-
-    try:
-        rv, data = M.login(cfg['EMAIL_ACCOUNT'], cfg['EMAIL_PASSWD'])
-    except imaplib.IMAP4.error:
-        print("LOGIN FAILED!!! ", data)
-        exit(1)
-
-    ## change folder
-    rv, data = M.select(cfg['EMAIL_FOLDER'])
-    if rv == 'OK':
-        print("> Opening mailbox...")
-        ## do some stuff
-        mailing.process_mailbox(M)
-        print("> Done.")
-        M.close()
-    else:
-        print("ERROR: Unable to open mailbox ", rv)
-
-    ## exit mailbox
-    M.logout()
-    
-    ## info
-    print("~ waiting 10 mins")
-    
-    ## sleep for 10 mins
-    sleep(600)
+# run!
+app = Email_Purge()
+app.mail_loop()

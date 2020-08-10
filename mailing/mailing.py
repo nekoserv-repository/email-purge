@@ -45,10 +45,10 @@ def process_mailbox(M):
         subject = email.header.decode_header(msg['Subject'])[0][0]
         num = int(mail_id)
         print('    [*] msg %02d: %s' % (num, subject))
-        
+
         # send to spamcop
         spamcop_http.send_to_spamcop(smtp_server, mail_content, subject)
-        
+
         # remove mail
         M.store(mail_id, '+FLAGS', '\\Deleted')
     smtp_server.quit();
