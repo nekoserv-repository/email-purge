@@ -16,12 +16,12 @@ RUN [[ -z "$UID" ]] && UID=$(( $RANDOM % 9000 + 1000 )) || UID=$UID && \
     addgroup -g $GID user && \
     adduser -S -u $UID -G user user && \
     apk add --no-cache curl tzdata unzip gcc libxml2-dev libxslt libxslt-dev musl-dev && \
-    curl -L https://github.com/nekoserv-repository/email-purge/archive/master.zip -o master.zip && \
-    unzip -q master.zip -d /home/user && \
+    curl -L https://github.com/nekoserv-repository/email-purge/archive/main.zip -o main.zip && \
+    unzip -q main.zip -d /home/user && \
     chown -R user:user /home/user && \
     python -m pip install --upgrade pip && \
-    pip install -r /home/user/email-purge-master/requirements.txt && \
-    rm master.zip && \
+    pip install -r /home/user/email-purge-main/requirements.txt && \
+    rm main.zip && \
     rm -rf /root/.cache/pip/ && \
     apk del --purge curl unzip gcc libxml2-dev libxslt-dev musl-dev
 
@@ -29,4 +29,4 @@ RUN [[ -z "$UID" ]] && UID=$(( $RANDOM % 9000 + 1000 )) || UID=$UID && \
 USER user
 
 # run!
-ENTRYPOINT ["python", "-u", "/home/user/email-purge-master/email_purge.py"]
+ENTRYPOINT ["python", "-u", "/home/user/email-purge-main/email_purge.py"]
