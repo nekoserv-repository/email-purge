@@ -1,9 +1,9 @@
-FROM python:3.8-alpine
+FROM python:3.10-alpine
 
 # Dokerfile's infos
 LABEL maintainer="nekoserv" mail="nekoserv@fai.tld"
-LABEL description="Alpine + python2 + email purge service"
-LABEL website="https://github.com/TODO/docker-email-purge"
+LABEL description="Alpine + python3 + email purge service"
+LABEL website="https://github.com/nekoserv-repository/email-purge"
 LABEL version="1.0"
 
 # init
