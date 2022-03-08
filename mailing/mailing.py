@@ -3,6 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 from config.config import cfg
 from spamcop import spamcop_http
+from tools.convertors import to_utf8
 
 
 def process_mailbox(M):
@@ -38,7 +39,7 @@ def process_mailbox(M):
             return
 
         # get mail content & send to spamcop!
-        mail_content = data[0][1].decode("utf-8")
+        mail_content = to_utf8(data[0][1])
 
         # display some infos to stdout
         msg = email.message_from_string(mail_content)
