@@ -1,22 +1,21 @@
-from bs4 import BeautifulSoup
-from requests_html import HTMLSession
-from http.client import HTTPSConnection
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from base64 import b64encode
 from time import sleep
-from config.config import cfg
+
+from bs4 import BeautifulSoup
+from requests_html import HTMLSession
+
+from config.configservice import ConfigService
 
 
-def send_to_spamcop(smtp_server, mail_content, subject):
+def send_to_spamcop(mail_content):
     """
     Fill the report for every mail.
     """
-    print("  > connecting to spamcop")
+    print("  > connecting to SpamCop")
 
     # get form
     session = HTMLSession()
-    res = send_get(session, cfg['SPAM_URL'])
+    res = send_get(session, ConfigService.get('SPAM_URL'))
     first_form = get_all_forms(res)[0]
     # get action
     action = first_form.attrs.get("action").lower()
@@ -25,15 +24,15 @@ def send_to_spamcop(smtp_server, mail_content, subject):
     # add mail content to text
     post_params['spam'] = mail_content
     # don't verbose
-    #post_params['verbose'] = '0'
+    # post_params['verbose'] = '0'
 
     # send the spam!
     print("  ~ sending spam")
-    post_url = cfg['SPAM_URL'] + action
+    post_url = ConfigService.get('SPAM_URL') + action
     response = send_post(session, post_url, post_params)
 
     # get response
-    res = send_get(session, response.url)
+    send_get(session, response.url)
     # wait a little bit (un-fuelled version)
     wait(7)
 
@@ -44,9 +43,9 @@ def send_to_spamcop(smtp_server, mail_content, subject):
     post_params = get_prefill(first_form)
 
     # process final report validation
-    print("  ~ filling spam repport")
-    post_url = cfg['SPAM_URL'] + action
-    response = send_post(session, post_url, post_params)
+    print("  ~ filling spam report")
+    post_url = ConfigService.get('SPAM_URL') + action
+    send_post(session, post_url, post_params)
     print("  ~ done")
 
 
@@ -56,7 +55,7 @@ def send_get(session, url):
     headers = get_headers()
 
     # create session, connect to website
-    res = session.get(url, headers = headers)
+    res = session.get(url, headers=headers)
 
     # if error
     if not res.ok:
@@ -66,7 +65,7 @@ def send_get(session, url):
     # res.html.render()
 
     # closing connection!
-    res.close();
+    res.close()
 
     return res
 
@@ -77,7 +76,7 @@ def send_post(session, url, post_params):
     headers = get_headers()
 
     # create session, connect to website
-    res = session.post(url, headers = headers, data = post_params)
+    res = session.post(url, headers=headers, data=post_params)
 
     # if error
     if not res.ok:
@@ -87,7 +86,7 @@ def send_post(session, url, post_params):
     # res.html.render()
 
     # closing connection!
-    res.close();
+    res.close()
 
     return res
 
@@ -95,39 +94,38 @@ def send_post(session, url, post_params):
 def get_all_forms(res):
     """Returns all forms tags found webpage"""
     soup = BeautifulSoup(res.html.html, "html.parser")
-    forms =  soup.find_all("form")
-    return forms;
+    forms = soup.find_all("form")
+    return forms
 
 
 def get_prefill(form):
-    """Returns input and textareas from a HTML form with their values"""
-    details = {}
+    """Returns input and text areas from HTML form with their values"""
     # get the form action (requested URL)
-    action = form.attrs.get("action").lower()
+    form.attrs.get("action").lower()
 
     # get all form inputs
     inputs = {}
     for input_tag in form.find_all("input"):
         name = input_tag.attrs.get("name")
         value = input_tag.attrs.get("value", "")
-        inputs[name] = value;
+        inputs[name] = value
     for input_tag in form.find_all("textarea"):
         name = input_tag.attrs.get("name")
         value = input_tag.attrs.get("value", "")
-        inputs[name] = value;
+        inputs[name] = value
     return inputs
 
 
 def wait(seconds):
-    """Wait for the required ammount of time"""
+    """Wait for the required amount of time"""
     print('  - wait %d seconds' % seconds, end='', flush=True)
     for x in range(0, seconds):
-        sleep (1)
+        sleep(1)
         print('.', end='', flush=True)
     print('')
 
 
 def get_headers():
     """Create the basic auth header"""
-    userAndPass = b64encode(bytes(cfg['SPAM_LOGIN_PASSWD'], "utf-8")).decode("utf-8")
-    return { 'Authorization' : 'Basic %s' %  userAndPass }
+    user_and_pass = b64encode(bytes(ConfigService.get('SPAM_LOGIN_PASSWD'), "utf-8")).decode("utf-8")
+    return {'Authorization': 'Basic %s' % user_and_pass}
