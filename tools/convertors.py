@@ -1,10 +1,8 @@
+def to_utf8(value):
+    if isinstance(value, bytes):
+        return value.decode("utf-8", "replace")
 
-def to_utf8( input_string ):
+    if isinstance(value, str):
+        return value
 
-  if isinstance(input_string, bytes):
-    return input_string.decode("utf-8", "replace")
-
-  if isinstance(input_string, str):
-    return input_string
-
-  raise ValueError("input_string must be an instance of 'bytes' or 'str'");
+    raise ValueError("input value must be an instance of 'bytes' or 'str'")

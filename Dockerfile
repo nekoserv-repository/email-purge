@@ -29,4 +29,4 @@ RUN [[ -z "$UID" ]] && UID=$(( $RANDOM % 9000 + 1000 )) || UID=$UID && \
 USER user
 
 # run!
-ENTRYPOINT ["python", "-u", "/home/user/email-purge-main/email_purge.py"]
+ENTRYPOINT ["python", "-u", "/home/user/email-purge-main/main.py"]

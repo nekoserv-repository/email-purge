@@ -1,2 +1,2 @@
-requests_html
-bs4
+requests_html==0.10.0
+beautifulsoup4==4.11.1
