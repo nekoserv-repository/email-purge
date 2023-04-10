@@ -6,10 +6,18 @@ So you have been warned : every mail in 'EMAIL_FOLDER' will be sent to another s
 
 # Requirements:
   - python3
-  - -to be defined -
+  - requests_html==0.10.0
+  - beautifulsoup4==4.11.1
 
 
 # Usage:
  - install dependencies : pip3 install -r requirements.txt
  - add environement variables (see, edit and run setenv.sh)
- - run : python email_purge.py
+ - run : python main.py
+
+# Dev mode:
+ - apt install python3-venv : if needed
+ - python3 -m venv .
+ - source ./bin/activate
+ - pip3 install -r requirements.txt
+ - python3 main.py

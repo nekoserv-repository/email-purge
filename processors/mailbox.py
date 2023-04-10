@@ -34,7 +34,10 @@ def process_mailbox(mailbox):
 
         # display details to stdout
         msg = message_from_string(mail_content)
-        subject = decode_header(msg['Subject'])[0][0]
+        if msg['Subject'] is not None:
+            subject = decode_header(msg['Subject'])[0][0]
+        else:
+            subject = '<unknown subject>'
         num = int(mail_id)
         print('    [*] msg %02d: %s' % (num, subject))
 

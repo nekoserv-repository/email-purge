@@ -50,7 +50,7 @@ class TestSpamCopHttp(TestCase):
     def test_send_to_spamcop(self, mock_post, mock_stdout):
         mock_post.return_value.url.return_value = ANY
         send_to_spamcop(ANY)
-        self.assertEquals('  > connecting to SpamCop\n  ~ sending spam\n  ~ filling spam report\n  ~ done\n',
+        self.assertEqual('  > connecting to SpamCop\n  ~ sending spam\n  ~ filling spam report\n  ~ done\n',
                           mock_stdout.getvalue())
 
     @patch('spamcop.spamcop_http.get_headers', MagicMock(return_value=ANY))
